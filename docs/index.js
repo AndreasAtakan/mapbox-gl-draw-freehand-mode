@@ -10,7 +10,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiYmVuZWhta2UiLCJhIjoiY2plYTl6b3c2MHg5ODJxbGV4a
 
 var Draw = new MapboxDraw({
   modes: Object.assign(MapboxDraw.modes, {
-    draw_polygon: FreehandMode
+    draw_line_string: FreehandMode
   })
 });
 

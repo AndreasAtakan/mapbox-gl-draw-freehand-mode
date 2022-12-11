@@ -41,7 +41,7 @@ FreehandMode.onDrag = FreehandMode.onTouchMove = function(state, e) {
     this.updateUIClasses({ mouse: cursors.ADD });
     state.line.updateCoordinate(`${state.currentVertexPosition}`, e.lngLat.lng, e.lngLat.lat);
     state.currentVertexPosition++;
-    state.line.updateCoordinate(`${state.currentVertexPosition}`, e.lngLat.lng, e.lngLat.lat);
+    //state.line.updateCoordinate(`${state.currentVertexPosition}.${state.currentVertexPosition+1}`, e.lngLat.lng, e.lngLat.lat);
 }
 
 FreehandMode.onMouseUp = function(state, e) {
