@@ -1,54 +1,54 @@
-import DrawPolygon from '@mapbox/mapbox-gl-draw/src/modes/draw_polygon';
+import DrawLineString from '@mapbox/mapbox-gl-draw/src/modes/draw_line_string';
 import {geojsonTypes, cursors, types, updateActions, modes, events} from '@mapbox/mapbox-gl-draw/src/constants';
 import simplify from "@turf/simplify";
 
-const FreehandMode = Object.assign({}, DrawPolygon)
+const FreehandMode = Object.assign({}, DrawLineString)
 
 FreehandMode.onSetup = function() {
-    const polygon = this.newFeature({
+    const line = this.newFeature({
         type: geojsonTypes.FEATURE,
         properties: {},
         geometry: {
-            type: geojsonTypes.POLYGON,
+            type: geojsonTypes.LINE_STRING,
             coordinates: [[]]
         }
     });
 
-    this.addFeature(polygon);
+    this.addFeature(line);
     this.clearSelectedFeatures();
-    
+
     // disable dragPan
     setTimeout(() => {
-        if (!this.map || !this.map.dragPan) return;
+        if(!this.map || !this.map.dragPan) return;
         this.map.dragPan.disable();
     }, 0);
 
     this.updateUIClasses({ mouse: cursors.ADD });
-    this.activateUIButton(types.POLYGON);
+    this.activateUIButton(types.LINE);
     this.setActionableState({
         trash: true
     });
 
     return {
-        polygon,
+        line,
         currentVertexPosition: 0,
         dragMoving: false
     };
 };
 
-FreehandMode.onDrag = FreehandMode.onTouchMove = function (state, e){
+FreehandMode.onDrag = FreehandMode.onTouchMove = function(state, e) {
     state.dragMoving = true;
     this.updateUIClasses({ mouse: cursors.ADD });
-    state.polygon.updateCoordinate(`0.${state.currentVertexPosition}`, e.lngLat.lng, e.lngLat.lat);
+    state.line.updateCoordinate(`${state.currentVertexPosition}`, e.lngLat.lng, e.lngLat.lat);
     state.currentVertexPosition++;
-    state.polygon.updateCoordinate(`0.${state.currentVertexPosition}`, e.lngLat.lng, e.lngLat.lat);
+    state.line.updateCoordinate(`${state.currentVertexPosition}`, e.lngLat.lng, e.lngLat.lat);
 }
 
-FreehandMode.onMouseUp = function (state, e){
-    if (state.dragMoving) {
-        this.simplify(state.polygon);
+FreehandMode.onMouseUp = function(state, e) {
+    if(state.dragMoving) {
+        this.simplify(state.line);
         this.fireUpdate();
-        this.changeMode(modes.SIMPLE_SELECT, { featureIds: [state.polygon.id] });
+        this.changeMode(modes.SIMPLE_SELECT, { featureIds: [state.line.id] });
     }
 }
 
@@ -63,9 +63,9 @@ FreehandMode.fireUpdate = function() {
     });
 };
 
-FreehandMode.simplify = function(polygon) {
+FreehandMode.simplify = function(line) {
   const tolerance = 1 / Math.pow(1.05, 10 * this.map.getZoom()) // https://www.desmos.com/calculator/nolp0g6pwr
-  simplify(polygon, {
+  simplify(line, {
       mutate: true,
       tolerance: tolerance,
       highQuality: true
@@ -73,7 +73,7 @@ FreehandMode.simplify = function(polygon) {
 }
 
 FreehandMode.onStop = function (state) {
-  DrawPolygon.call(this, state)
+  DrawLineString.onStop.call(this, state)
   setTimeout(() => {
     if (!this.map || !this.map.dragPan) return;
     this.map.dragPan.enable();
